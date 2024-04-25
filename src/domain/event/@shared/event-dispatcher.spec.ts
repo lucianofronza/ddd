@@ -1,4 +1,5 @@
 import Address from "../../entity/address";
+import CustomerChangedAddressEvent from "../customer/customer-changed-address.event";
 import CustomerCreatedEvent from "../customer/customer-created.event";
 import SendLogConsoleWhenCustomerChangeAddressHandler from "../customer/handler/send-log-console-when-customer-change-address.handler";
 import SendLog1ConsoleWhenCustomerIsCreatedHandler from "../customer/handler/send-log1-console-when-customer-is-created.handler";
@@ -18,61 +19,59 @@ describe("Domain events tests", () => {
         eventDispatcher.register("ProductCreatedEvent", eventHandler);
         eventDispatcher.register("CustomerCreatedEvent", eventLog1CustomerHandler);
         eventDispatcher.register("CustomerCreatedEvent", eventLog2CustomerHandler);
-        eventDispatcher.register("CustomerCreatedEvent", eventLogCustomerChangeAddressHandler);
+        eventDispatcher.register("CustomerChangedAddressEvent", eventLogCustomerChangeAddressHandler);
 
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"]).toBeDefined();
-        expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"].length).toBe(3);
+        expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"].length).toBe(2);
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"][0]).toMatchObject(eventLog1CustomerHandler);
 
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"]).toBeDefined();
-        expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"].length).toBe(3);
+        expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"].length).toBe(2);
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"][1]).toMatchObject(eventLog2CustomerHandler);
 
-        expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"]).toBeDefined();
-        expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"].length).toBe(3);
-        expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"][2]).toMatchObject(eventLogCustomerChangeAddressHandler);
+        expect(eventDispatcher.getEventHandlers["CustomerChangedAddressEvent"]).toBeDefined();
+        expect(eventDispatcher.getEventHandlers["CustomerChangedAddressEvent"].length).toBe(1);
+        expect(eventDispatcher.getEventHandlers["CustomerChangedAddressEvent"][0]).toMatchObject(eventLogCustomerChangeAddressHandler);
     });
 
     it("Should unregister an event handler", () => {
+        //Product is created
         const eventDispatcher = new EventDispatcher();
         const eventHandler = new SendEmailWhenProductIsCreatedHandler();
 
         eventDispatcher.register("ProductCreatedEvent", eventHandler);
-
         expect(eventDispatcher.getEventHandlers["ProductCreatedEvent"][0]).toMatchObject(eventHandler);
-
         eventDispatcher.unregister("ProductCreatedEvent", eventHandler);
-
         expect(eventDispatcher.getEventHandlers["ProductCreatedEvent"]).toBeDefined();
         expect(eventDispatcher.getEventHandlers["ProductCreatedEvent"].length).toBe(0);
 
+        //Customer is Created
         const eventLog1CustomerHandler = new SendLog1ConsoleWhenCustomerIsCreatedHandler();
         const eventLog2CustomerHandler = new SendLog2ConsoleWhenCustomerIsCreatedHandler();
-        const eventLogCustomerChangeAddressHandler = new SendLogConsoleWhenCustomerChangeAddressHandler(); 
 
         eventDispatcher.register("CustomerCreatedEvent", eventLog1CustomerHandler);
         eventDispatcher.register("CustomerCreatedEvent", eventLog2CustomerHandler);
-        eventDispatcher.register("CustomerCreatedEvent", eventLogCustomerChangeAddressHandler);
-
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"][0]).toMatchObject(eventLog1CustomerHandler);
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"][1]).toMatchObject(eventLog2CustomerHandler);
-        expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"][2]).toMatchObject(eventLogCustomerChangeAddressHandler);
-
-        eventDispatcher.unregister("CustomerCreatedEvent", eventLog1CustomerHandler);
-
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"]).toBeDefined();
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"].length).toBe(2);
-
-        eventDispatcher.unregister("CustomerCreatedEvent", eventLog2CustomerHandler);
-
+        eventDispatcher.unregister("CustomerCreatedEvent", eventLog1CustomerHandler);
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"]).toBeDefined();
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"].length).toBe(1);
-
-        eventDispatcher.unregister("CustomerCreatedEvent", eventLogCustomerChangeAddressHandler);
-
+        eventDispatcher.unregister("CustomerCreatedEvent", eventLog2CustomerHandler);
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"]).toBeDefined();
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"].length).toBe(0);
 
+        //Customer changed address
+        const eventLogCustomerChangeAddressHandler = new SendLogConsoleWhenCustomerChangeAddressHandler(); 
+        
+        eventDispatcher.register("CustomerChangedAddressEvent", eventLogCustomerChangeAddressHandler);
+        expect(eventDispatcher.getEventHandlers["CustomerChangedAddressEvent"][0]).toMatchObject(eventLogCustomerChangeAddressHandler);
+        expect(eventDispatcher.getEventHandlers["CustomerChangedAddressEvent"]).toBeDefined();
+        expect(eventDispatcher.getEventHandlers["CustomerChangedAddressEvent"].length).toBe(1);        
+        eventDispatcher.unregister("CustomerChangedAddressEvent", eventLogCustomerChangeAddressHandler);
+        expect(eventDispatcher.getEventHandlers["CustomerChangedAddressEvent"]).toBeDefined();
+        expect(eventDispatcher.getEventHandlers["CustomerChangedAddressEvent"].length).toBe(0);
     });
 
     it("Should unregister all event handlers", () => {
@@ -85,17 +84,18 @@ describe("Domain events tests", () => {
         eventDispatcher.register("ProductCreatedEvent", eventHandler);
         eventDispatcher.register("CustomerCreatedEvent", eventLog1CreatedCustomer);
         eventDispatcher.register("CustomerCreatedEvent", eventLog2CreatedCustomer);
-        eventDispatcher.register("CustomerCreatedEvent", eventLogCustomerChangeAddressHandler);
+        eventDispatcher.register("CustomerChangedAddressEvent", eventLogCustomerChangeAddressHandler);
 
         expect(eventDispatcher.getEventHandlers["ProductCreatedEvent"][0]).toMatchObject(eventHandler);
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"][0]).toMatchObject(eventLog1CreatedCustomer);
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"][1]).toMatchObject(eventLog2CreatedCustomer);
-        expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"][2]).toMatchObject(eventLogCustomerChangeAddressHandler);
+        expect(eventDispatcher.getEventHandlers["CustomerChangedAddressEvent"][0]).toMatchObject(eventLogCustomerChangeAddressHandler);
 
         eventDispatcher.unregisterAll();
 
         expect(eventDispatcher.getEventHandlers["ProductCreatedEvent"]).toBeUndefined();
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"]).toBeUndefined();
+        expect(eventDispatcher.getEventHandlers["CustomerChangedAddressEvent"]).toBeUndefined();        
     });
 
     it("Should notify all event handlers", () => {
@@ -116,12 +116,12 @@ describe("Domain events tests", () => {
         eventDispatcher.register("ProductCreatedEvent", eventHandler);
         eventDispatcher.register("CustomerCreatedEvent", eventHandlerLog1Customer);
         eventDispatcher.register("CustomerCreatedEvent", eventHandlerLog2Customer);
-        eventDispatcher.register("CustomerCreatedEvent", eventLogCustomerChangeAddressHandler);
+        eventDispatcher.register("CustomerChangedAddressEvent", eventLogCustomerChangeAddressHandler);
 
         expect(eventDispatcher.getEventHandlers["ProductCreatedEvent"][0]).toMatchObject(eventHandler);
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"][0]).toMatchObject(eventHandlerLog1Customer);
         expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"][1]).toMatchObject(eventHandlerLog2Customer);
-        expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"][2]).toMatchObject(eventLogCustomerChangeAddressHandler);   
+        expect(eventDispatcher.getEventHandlers["CustomerChangedAddressEvent"][0]).toMatchObject(eventLogCustomerChangeAddressHandler);   
 
         const productCreatedEvent = new ProductCreatedEvent({
             name: "Product 1",
@@ -154,7 +154,7 @@ describe("Domain events tests", () => {
 
         const address = new Address("Rua 1",10,"88.056-256","Cidade 1");
 
-        const customerCustomerChangeAddressLog = new CustomerCreatedEvent({
+        const customerCustomerChangeAddressLog = new CustomerChangedAddressEvent({
             id: "123",
             name: "Customer 1",
             address: { street: address.street, number: address.number, zipcode: address.zip, city: address.city }

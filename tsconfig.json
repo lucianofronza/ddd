@@ -108,5 +108,5 @@
   },
   "include": [
     "src/**/*.ts"
-  ],
+, "src/domain/event/customer/customer-changed-address.eventts"  ],
 }
