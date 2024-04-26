@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Customer unit tests should throw error when id is empty: Id is required 1`] = `"Id is required"`;
+
+exports[`Customer unit tests should throw error when name is empty: Name is required 1`] = `"Name is required"`;
