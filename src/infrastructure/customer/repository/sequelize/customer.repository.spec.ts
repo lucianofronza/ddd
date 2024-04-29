@@ -3,7 +3,6 @@ import Address from "../../../../domain/customer/value-object/address";
 import Customer from "../../../../domain/customer/entity/customer";
 import CustomerModel from "./customer.model";
 import CustomerRepository from "./customer.repository";
-import { AccessDeniedError, CITEXT } from "sequelize";
 
 describe("Customer repository test", () => {
     let sequelize: Sequelize;
@@ -65,7 +64,7 @@ describe("Customer repository test", () => {
             number: address.number,
             zipcode: address.zip,
             city: address.city
-        });        
+        });    
     })
 
     it("should find a customer", async () => {
